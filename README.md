@@ -23,7 +23,7 @@ $ ./auto shakespeare.txt
 Query web server:
 
 ```
-$curl 'http://localhost:5000/autocomplete?term=ha'
+$ curl 'http://localhost:5000/autocomplete?term=ha'
 
 have
 hath
