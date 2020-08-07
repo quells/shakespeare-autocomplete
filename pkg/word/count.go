@@ -1,20 +1,11 @@
 package word
 
 import (
-	"bytes"
+	"bufio"
 	"io"
 	"regexp"
 	"strings"
 	"sync"
-)
-
-const (
-	countChunkSize = 32 * 1024
-)
-
-var (
-	newline = []byte{'\n'}
-	space   = []byte{' '}
 )
 
 // CountIn counts the words in a file or other io.Reader.
@@ -27,44 +18,17 @@ func CountIn(r io.Reader) (counts map[string]int, err error) {
 	normalized := normalize(pipeline, &wg)
 	countResult := count(normalized)
 
-	// TODO: Use two sets of buffers and empty one while filling the other.
-
-	// TODO: Double check that leftovers are handled correctly (maybe on text
-	// where the words aren't so unusual)
-
-	var leftover, combined []byte
-	var lines, words [][]byte
-	buf := make([]byte, countChunkSize)
-	var n, m int
-	for {
-		n, err = r.Read(buf)
-		if err != nil {
-			if err == io.EOF {
-				err = nil
-				break
-			}
-			return
-		}
-
-		if buf[n-1] == ' ' {
-			leftover = []byte{}
-		} else {
-			for m = n - 1; buf[m] != ' ' && m > 0; m-- {
-				leftover = buf[m:n]
-				n = m - 1
-			}
-		}
-		combined = append(leftover, buf[:n]...)
-		lines = bytes.Split(combined, newline)
-		for _, line := range lines {
-			words = bytes.Split(line, space)
-			for _, word := range words {
-				if len(word) > 0 {
-					pipeline <- string(word)
-				}
+	scanner := bufio.NewScanner(r)
+	for scanner.Scan() {
+		line := scanner.Text()
+		words := strings.Split(line, " ")
+		for _, word := range words {
+			if len(word) > 0 {
+				pipeline <- word
 			}
 		}
 	}
+	err = scanner.Err()
 
 	close(pipeline)
 	wg.Wait()

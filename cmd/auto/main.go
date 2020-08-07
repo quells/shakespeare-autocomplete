@@ -71,6 +71,12 @@ func (h autoHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	results := word.SortedByFreq(h.t.FindWithPrefix(term))
+	if len(results) == 0 {
+		w.WriteHeader(http.StatusNotFound)
+		w.Write([]byte("no results found"))
+		return
+	}
+
 	if len(results) > 25 {
 		results = results[:25]
 	}

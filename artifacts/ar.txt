@@ -15,10 +15,10 @@ armed
 arrest
 arch
 articles
-arriv
 article
-arrant
+arriv
 array
+arrant
 arts
 arras
 archive
