@@ -1,10 +1,5 @@
 package trie
 
-import (
-	"fmt"
-	"strings"
-)
-
 // A Trie is a prefix tree.
 type Trie struct {
 	children [26]*node
@@ -26,15 +21,6 @@ func New(freqs map[string]int) *Trie {
 	return &Trie{children}
 }
 
-// String serializes a Trie to a String - beware, this gets large fast.
-func (t *Trie) String() string {
-	children := make([]string, 26)
-	for i, c := range t.children {
-		children[i] = c.String()
-	}
-	return "[" + strings.Join(children, " ") + "]"
-}
-
 // FindWithPrefix all matching words and their counts.
 func (t *Trie) FindWithPrefix(p string) (counts map[string]int) {
 	counts = make(map[string]int)
@@ -45,31 +31,22 @@ func (t *Trie) FindWithPrefix(p string) (counts map[string]int) {
 
 type node struct {
 	depth    int
-	words    map[string]int // word : count
+	word     string
+	count    int
 	children [26]*node
 }
 
 func newNode(depth int) *node {
-	words := make(map[string]int)
+	word := ""
+	count := 0
 	children := [26]*node{}
-	return &node{depth, words, children}
-}
-
-func (n *node) String() string {
-	if n == nil {
-		return "[]"
-	}
-
-	children := make([]string, 26)
-	for i, c := range n.children {
-		children[i] = c.String()
-	}
-	return "[ " + fmt.Sprintf("%v", n.words) + strings.Join(children, " ") + "]"
+	return &node{depth, word, count, children}
 }
 
 func (n *node) insert(word string, count int, remaining string) {
 	if remaining == "" {
-		n.words[word] = count
+		n.word = word
+		n.count = count
 		return
 	}
 
@@ -87,13 +64,10 @@ func (n *node) findWithPrefix(p string, m *map[string]int) {
 		return
 	}
 
-	for w, c := range n.words {
-		if strings.HasPrefix(w, p) {
-			(*m)[w] = c
-		}
-	}
-
 	if len(p) <= n.depth {
+		if n.count > 0 {
+			(*m)[n.word] = n.count
+		}
 		for _, c := range n.children {
 			c.findWithPrefix(p, m)
 		}
