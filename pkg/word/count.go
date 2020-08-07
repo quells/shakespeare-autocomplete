@@ -5,17 +5,14 @@ import (
 	"io"
 	"regexp"
 	"strings"
-	"sync"
 )
 
 // CountIn counts the words in a file or other io.Reader.
 // This is overcomplicated for a single text file, but handles much larger
 // files without spilling out into swap or getting OOM killed.
 func CountIn(r io.Reader) (counts map[string]int, err error) {
-	var wg sync.WaitGroup
-	wg.Add(1)
-	pipeline := make(chan string)
-	normalized := normalize(pipeline, &wg)
+	pipeline := make(chan string, 1)
+	normalized := normalize(pipeline)
 	countResult := count(normalized)
 
 	scanner := bufio.NewScanner(r)
@@ -31,8 +28,6 @@ func CountIn(r io.Reader) (counts map[string]int, err error) {
 	err = scanner.Err()
 
 	close(pipeline)
-	wg.Wait()
-	close(normalized)
 	counts = <-countResult
 
 	return
@@ -53,8 +48,8 @@ func Normalize(word string) string {
 	return string(norm)
 }
 
-func normalize(in <-chan string, wg *sync.WaitGroup) (out chan string) {
-	out = make(chan string)
+func normalize(in <-chan string) (out chan string) {
+	out = make(chan string, 1)
 
 	go func() {
 		for {
@@ -70,14 +65,14 @@ func normalize(in <-chan string, wg *sync.WaitGroup) (out chan string) {
 			}
 		}
 
-		wg.Done()
+		close(out)
 	}()
 
 	return
 }
 
 func count(words <-chan string) (result chan map[string]int) {
-	result = make(chan map[string]int)
+	result = make(chan map[string]int, 1)
 
 	go func() {
 		counts := make(map[string]int)
