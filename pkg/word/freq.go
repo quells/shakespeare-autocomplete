@@ -1,6 +1,9 @@
 package word
 
-import "sort"
+import (
+	"sort"
+	"strings"
+)
 
 type Freq struct {
 	Word  string
@@ -20,6 +23,12 @@ func SortedByFreq(counts map[string]int) (freqs []Freq) {
 
 type ByCount []Freq
 
-func (c ByCount) Len() int           { return len(c) }
-func (c ByCount) Swap(i, j int)      { c[i], c[j] = c[j], c[i] }
-func (c ByCount) Less(i, j int) bool { return c[i].Count > c[j].Count } // Most frequent first
+func (c ByCount) Len() int      { return len(c) }
+func (c ByCount) Swap(i, j int) { c[i], c[j] = c[j], c[i] }
+func (c ByCount) Less(i, j int) bool {
+	// Most frequent first, alphabetical
+	if c[i].Count == c[j].Count {
+		return strings.Compare(c[i].Word, c[i].Word) < 0
+	}
+	return c[i].Count > c[j].Count
+}

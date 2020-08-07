@@ -3,8 +3,8 @@ second
 set
 service
 servant
-sent
 seen
+sent
 send
 sea
 seek
@@ -21,5 +21,5 @@ several
 serv
 seven
 secret
-seat
 senators
+seat
