@@ -1,0 +1,12 @@
+body {
+    text-align: center;
+}
+
+#results {
+    max-width: 100px;
+    margin: 0 auto;
+}
+
+#results li {
+    text-align: left;
+}

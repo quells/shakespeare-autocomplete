@@ -31,6 +31,7 @@ func main() {
 	}
 
 	http.Handle("/autocomplete", auto)
+	http.Handle("/", http.FileServer(http.Dir("./web")))
 
 	log.Println("listening on :5000")
 	if err = http.ListenAndServe(":5000", nil); err != nil {

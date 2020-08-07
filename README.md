@@ -53,3 +53,5 @@ happiness
 ```
 
 See the documents in `artifacts` for example results for various queries.
+
+If you run the executable from this directory, you can visit http://localhost:5000 to see a minimal website consuming this API.
